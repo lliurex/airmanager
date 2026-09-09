@@ -1,0 +1,32 @@
+#!/bin/bash
+
+#This script parses the adobe air instaler call to dpkg-deb and tries to fix the malformed package
+#LliureX Team
+
+OUTLOG=/tmp/dpkg_out
+ERRLOG=/tmp/dpkg_err
+
+echo >> $OUTLOG
+date +%Y%m%d:%H:%M:%S >>$OUTLOG
+DPKG="/usr/bin/dpkg-deb"
+echo "Using dpkg at $DPKG">>$OUTLOG
+
+ACTION=$1
+FIRST=$2
+
+
+if [[ $ACTION == '-b' ]]
+then
+	#first parm is the dir with the linked DEBIAN dir
+	fakeDEBIAN=$FIRST"/DEBIAN"
+	DEBIAN=$(readlink $fakeDEBIAN)
+	rm -fr $fakeDEBIAN
+	cp -vr $DEBIAN $fakeDEBIAN >>$OUTLOG
+	cd $FIRST/DEBIAN
+	sed -i '/Pre-Depends.*/d' control 2>>$ERRLOG
+	cd $OLDPWD
+fi
+
+$DPKG $@ 2>>$ERRLOG
+
+exit 0
