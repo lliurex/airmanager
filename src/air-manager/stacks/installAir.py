@@ -68,14 +68,13 @@ class installAir(QStackedWindowItem):
 
 	def _loadAppData(self,air=""):
 		if air:
-			self.airInfo=self.airManager.get_air_info(air)
+			self.airInfo=self.airManager.getAirInfo(air)
 		else:
 			self.airInfo={}
 		self.updateScreen()
 	#def _loadAppData
 
 	def updateScreen(self):
-		print(self.airInfo)
 		icon=self.airInfo.get("icon","xterm")
 		pxm=QPixmap(icon)
 		icn=QIcon(pxm)
@@ -86,10 +85,8 @@ class installAir(QStackedWindowItem):
 	def writeConfig(self):
 		tmpIcon=tempfile.mkstemp()[1]
 		self.btnIcon.icon().pixmap(QSize(64,64)).save(tmpIcon,"PNG")
-		subprocess.check_call(['/usr/bin/xhost','+'])
-		air=self.inpFile.text()
 		try:
-			ins=subprocess.check_call(['pkexec','/usr/bin/air-helper-installer.py','install',air,tmpIcon])
+			ins=subprocess.check_call(['pkexec','/usr/bin/air-helper-installer.py','install',self.airInfo["file"],tmpIcon])
 			self.install_err=False
 		except Exception as e:
 			print(e)
